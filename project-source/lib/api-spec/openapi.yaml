@@ -1,0 +1,202 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: chat
+    description: Private chat room operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /rooms/{roomCode}:
+    get:
+      operationId: getRoomState
+      tags: [chat]
+      summary: Get the current state of a private room
+      parameters:
+        - $ref: "#/components/parameters/RoomCode"
+      responses:
+        "200":
+          description: Current room state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomState"
+        "404":
+          description: Room not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /rooms/{roomCode}/join:
+    post:
+      operationId: joinRoom
+      tags: [chat]
+      summary: Join a private chat room
+      parameters:
+        - $ref: "#/components/parameters/RoomCode"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JoinRoomInput"
+      responses:
+        "200":
+          description: Joined room state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomState"
+        "400":
+          description: Invalid room or username
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /rooms/{roomCode}/messages:
+    post:
+      operationId: sendMessage
+      tags: [chat]
+      summary: Send a message to a private chat room
+      parameters:
+        - $ref: "#/components/parameters/RoomCode"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageInput"
+      responses:
+        "201":
+          description: The created chat message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessage"
+        "400":
+          description: Invalid message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  parameters:
+    RoomCode:
+      name: roomCode
+      in: path
+      required: true
+      description: A short private room code
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 32
+        pattern: "^[A-Za-z0-9_-]+$"
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    JoinRoomInput:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 32
+    SendMessageInput:
+      type: object
+      required:
+        - username
+        - body
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 32
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+    Participant:
+      type: object
+      required:
+        - id
+        - username
+        - joinedAt
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        joinedAt:
+          type: string
+          format: date-time
+    ChatMessage:
+      type: object
+      required:
+        - id
+        - roomCode
+        - username
+        - body
+        - sentAt
+      properties:
+        id:
+          type: string
+        roomCode:
+          type: string
+        username:
+          type: string
+        body:
+          type: string
+        sentAt:
+          type: string
+          format: date-time
+    RoomState:
+      type: object
+      required:
+        - roomCode
+        - participants
+        - messages
+      properties:
+        roomCode:
+          type: string
+        participants:
+          type: array
+          items:
+            $ref: "#/components/schemas/Participant"
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+

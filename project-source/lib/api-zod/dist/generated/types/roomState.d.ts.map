@@ -1,0 +1,1 @@
+{"version":3,"file":"roomState.d.ts","sourceRoot":"","sources":["../../../src/generated/types/roomState.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,eAAe,CAAC;AACjD,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,eAAe,CAAC;AAEjD,MAAM,WAAW,SAAS;IACxB,QAAQ,EAAE,MAAM,CAAC;IACjB,YAAY,EAAE,WAAW,EAAE,CAAC;IAC5B,QAAQ,EAAE,WAAW,EAAE,CAAC;CACzB"}
